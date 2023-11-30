@@ -87,7 +87,7 @@ export function Overlay({ isOpen, onClose }) {
             const data = await response.json();
             setCustomers(data.data.distributor_details);
             // console.log("new Request is made overlay",data.data.distributor_details);
-            setIsloading(false);
+                        setIsloading(false);
         };
 
         if (selectedDistributors.length === 0) getCustomers();
@@ -96,7 +96,7 @@ export function Overlay({ isOpen, onClose }) {
 
     const totalItems = customers.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+    
     const handleCheckboxChange = (code) => {
         if (selectedCodes.includes(code)) {
             setSelectedCodes(selectedCodes.filter((c) => c !== code));
@@ -166,23 +166,10 @@ export function Overlay({ isOpen, onClose }) {
                                     <textarea style={{ padding: "0", paddingLeft: "2px", margin: "0", flex: "1", textAlign: "left", resize: "none", border: "none", outline: "none", backgroundColor: "transparent" }} rows="3" cols="50" value={(region1 === "0") ? "All" : region1} readOnly></textarea>
                                 </div>
                             </div>
-
+                            
                             <div style={{ display: "flex", flexDirection: "row", rowGap: "8px", justifyContent: "space-between", marginTop: "5px" }}>
 
-                                {/* <div style={{ display: "flex" }}>
-              <h6 style={{ padding: "0", paddingTop: "2px", margin: "0" }}> : </h6>
-              <p style={{ padding: "0", paddingLeft: "2px", margin: "0", flex: "1", textAlign: "left" }}>values</p>
-            </div>
-            <div style={{ display: "flex" }}>
-              <h6 style={{ padding: "0", paddingTop: "2px", margin: "0" }}>Dist Type : </h6>
-              <p style={{ padding: "0", paddingLeft: "2px", margin: "0", flex: "1", textAlign: "left" }}>values</p>
-            </div> */}
                             </div>
-                            {/* <div style={{ width: "100%", display: "flex", flexDirection: "row" }}>
-                                <div>sdfasf</div>
-                                <div>sdfsdcs</div>
-                                <div>sdfdscsd</div>
-                            </div> */}
 
 
                             {/* last Part Grid */}

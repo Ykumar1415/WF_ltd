@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 
 const useUserStore = create((set) => ({
+  date: '',
+  setDate: (name) => set({ date: name }),
   roles: [],
   bp: false,
   item: false,
@@ -11,6 +13,11 @@ const useUserStore = create((set) => ({
   states: [],
   region: [],
   city: [],
+  brand: [],
+  pack: [],
+  productfamily: [],
+  productline: [],
+  selectedSku: [],
   StoreDataList: [],
   StoreDataStart: 0,
   StoreDataEnd: 0,
@@ -34,7 +41,7 @@ const useUserStore = create((set) => ({
 
   removeallDistributors: () =>
     set((state) => ({ allDistributors: [] })),
-// 8888888888888888888888888888888888888
+  // 8888888888888888888888888888888888888
   setBp: () => set(() => ({ bp: true })),
   setItem: () => set(() => ({ item: true })),
   setRoles: (details) => set(() => ({ roles: details })),
@@ -87,12 +94,42 @@ const useUserStore = create((set) => ({
     set((state) => ({
       city: state.city.filter((i) => i !== filterValue),
     })),
+  pushBrand: (newChannel) =>
+    set((state) => ({ brand: [...state.brand, newChannel] })),
+
+  filterBrand: (filterValue) =>
+    set((state) => ({
+      brand: state.brand.filter((i) => i !== filterValue),
+    })),
+  pushPack: (newChannel) =>
+    set((state) => ({ pack: [...state.pack, newChannel] })),
+
+  filterPack: (filterValue) =>
+    set((state) => ({
+      pack: state.pack.filter((i) => i !== filterValue),
+    })),
+  pushFamily: (newChannel) =>
+    set((state) => ({ productfamily: [...state.productfamily, newChannel] })),
+
+  filterFamily: (filterValue) =>
+    set((state) => ({
+      productfamily: state.productfamily.filter((i) => i !== filterValue),
+    })),
+  pushLine: (newChannel) =>
+    set((state) => ({ productline: [...state.productline, newChannel] })),
+
+  filterLine: (filterValue) =>
+    set((state) => ({
+      productline: state.productline.filter((i) => i !== filterValue),
+    })),
   // push distributors in an array
   pushSelectedDistributors: (newChannel) =>
     set((state) => ({ selectedDistributors: [...state.selectedDistributors, newChannel] })),
-// add all the distributors in an array
+  pushSelectedSku: (newChannel) =>
+    set((state) => ({ selectedSku: [...state.selectedSku, newChannel] })),
+  // add all the distributors in an array
   pushAllSelectedDistributors: (newChannel) =>
-    set((state) => ({ selectedDistributors:  newChannel })),
+    set((state) => ({ selectedDistributors: newChannel })),
 
   // remove all the selected distributors
   removeAllSelectedDistributors: () =>

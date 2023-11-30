@@ -18,46 +18,11 @@ export function Overlay({ isOpen, onClose }) {
     const state = states.map((i) => `'${i}'`).join(",");
     const region1 = region.map((i) => `'${i}'`).join(",");
     const city1 = city.map((i) => `'${i}'`).join(",");
-   
+
 
 
     
-    // useEffect(() => {
-    //     const getCustomers = async () => {
-    //         const response = await fetch("http://192.168.0.8:5004/intranet_app_api_v2/createCatalog/getSelectedDBs", {
-    //             method: "POST",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //                 "Authorization": "Bearer " + localStorage.getItem("authToken")
-    //             },
-    //             body: JSON.stringify({
-    //                 "channel_count": 0,
-    //                 "sub_channel_count": 0,
-    //                 "dist_type_count": 0,
-    //                 "zone_count": 0,
-    //                 "state_count": 0,
-    //                 "region_count": 0,
-    //                 "city_count": 0,
-    //                 "channel": "0",
-    //                 "sub_channel": "0",
-    //                 "dist_type": "'DB','SS'",
-    //                 "zone": "0",
-    //                 "state": "0",
-    //                 "region": "0",
-    //                 "city": "0"
-    //             })
-    //         });
-
-    //         const data = await response.json();
-    //         setCustomers(data.data.distributor_details);
-    //         console.log(data.data.distributor_details);
-    //         //   useUserStore().pushStoreDataList(data.data.distributor_details);
-    //         //   console.log({ "useUserStore": useUserStore().StoreDataList });
-    //         setIsloading(false);
-    //     };
-
-    //     getCustomers();
-    // }, []);
+ 
 
 
     const totalItems = customers.length;

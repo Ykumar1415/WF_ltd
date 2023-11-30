@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DataListItem from './DataList';
 import './DataList.css';
@@ -17,7 +16,7 @@ const CustomerList = ({ customers, currentPage, setCurrentPage, itemsPerPage, se
     let [currentItems, setCurrentItems] = useState(customers.slice(startIndex, endIndex));
     const [selectedRows, setSelectedRows] = useState([]); // need to replace with global array
     const { pushSelectedDistributors, allDistributors, pushAllSelectedDistributors, selectedDistributors, pushallDistributors, setAllSelected, unsetAllSelected, removeallDistributors } = useUserStore();
-    const [isSelectAll, setIsSelectAll] = useState(false);
+const [isSelectAll, setIsSelectAll] = useState(false);
     const prevHandler = () => {
         if (currentPageNumber >= 1) {
             setCurrentPage(currentPageNumber - 1);
@@ -30,9 +29,9 @@ const CustomerList = ({ customers, currentPage, setCurrentPage, itemsPerPage, se
         }
 
     }
+    
 
-
-
+ 
     const [gridApi, setGridApi] = useState(null);
 
     const columnDef = [
@@ -41,7 +40,7 @@ const CustomerList = ({ customers, currentPage, setCurrentPage, itemsPerPage, se
         { headerName: "Dist_type", field: "dist_type", sortable: true, headerClass: "ag-header-cell-label-center1" },
         //one more column for checkbox
     ]
-    const defaultColDef = {
+const defaultColDef = {
         sortable: true,
         filter: true,
         // floatingFilter: true,
@@ -51,7 +50,7 @@ const CustomerList = ({ customers, currentPage, setCurrentPage, itemsPerPage, se
         headerCheckboxSelectionCurrentPageOnly: true,
 
     }
-
+   
     const nextHandler = () => {
         if (currentPage <= totalPages) {
             setCurrentPage(currentPage + 1);
@@ -62,7 +61,7 @@ const CustomerList = ({ customers, currentPage, setCurrentPage, itemsPerPage, se
             console.log("next", startIndex, endIndex, currentPageNumber, currentItems);
 
         }
-
+        
     }
     const [selecting, setSelecting] = useState(false);
 
@@ -125,12 +124,12 @@ const CustomerList = ({ customers, currentPage, setCurrentPage, itemsPerPage, se
                     textAlign: "center"
                 }}
             >
-                <button style={{ position: "relative", right: "29rem", backgroundColor: "#E0F4FF", border: "1rem", padding: "5px", border: "none" }} onClick={selectAllItems}>{(isSelectAll) && <span>&#10003;</span>}{selecting ? "Please Wait" : ((isSelectAll) ? "All Selected" : "Select All")}</button>
+<button style={{ position: "relative", right: "29rem", backgroundColor: "#E0F4FF", border: "1rem", padding: "5px", border: "none" }} onClick={selectAllItems}>{(isSelectAll) && <span>&#10003;</span>}{selecting ? "Please Wait" : ((isSelectAll) ? "All Selected" : "Select All")}</button>
                 <AgGridReact
                     rowData={customers}
                     rowSelection="multiple"
                     // onGridReady={onGridReady}
-                    onGridReady={async (params) => {
+onGridReady={async (params) => {
                         await setGridApi(params.api);
                     }}
                     onRowValueChanged={async () => {
@@ -155,21 +154,24 @@ const CustomerList = ({ customers, currentPage, setCurrentPage, itemsPerPage, se
                         }
                     }
                     defaultColDef={defaultColDef}
-                    pagination={true}
+                                        pagination={true}
                     animateRows={true}
                     paginationPageSize={6}
                     rowMultiSelectWithClick={true}
 
-                    onSelectionChanged={async () => {
+                      onSelectionChanged={async () => {
                         if (gridApi) {
-                            const selectedNodes = await gridApi.getSelectedNodes();
-                            const selectedData = selectedNodes.map((node) => node.data);
-                            selectedData.map((e) => pushSelectedDistributors(e));
-                            setSelectedRows(selectedData);
-                            console.log(selectedRows)
+                          const selectedNodes = await gridApi.getSelectedNodes();
+                          const selectedData = selectedNodes.map((node) => node.data);
+                          selectedData.map((e) => {
+                            if (!selectedDistributors.includes(e)) {
+                              pushSelectedDistributors(e);
+                            }
+                          });
+                          setSelectedRows(selectedData);
+                          console.log(selectedRows)
                         }
-                    }}
-                    isRowSelectable={() => { return true; }}
+                      }}
                 />
 
             </div>

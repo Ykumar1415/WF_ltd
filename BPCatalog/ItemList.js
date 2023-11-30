@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import useUserStore from '../Store/store';
 function ItemList({ itemName, itemId, dropdownPart }) {
-    const { channels, pushChannel, filterChannels, subchannels, filtersubChannels, pushsubChannel, pushdist, filterdist, pushZone, filterZone, pushState, filterState, pushRegion, filterRegion, pushCity, filterCity } = useUserStore();
+    const { channels, pushChannel, filterChannels, subchannels, filtersubChannels, pushsubChannel, pushdist, filterdist, pushZone, filterZone, pushState, filterState,
+        pushRegion, filterRegion, pushCity, filterCity, pushBrand, filterBrand, pushPack, filterPack, pushFamily, filterFamily,
+        pushLine, filterLine } = useUserStore();
     const [isClicked, setIsClicked] = useState(false);
 
     const handleAdd = (e) => {
@@ -27,6 +29,18 @@ function ItemList({ itemName, itemId, dropdownPart }) {
         }
         else if (dropdownPart === "7") {
             pushCity(e);
+        }
+        else if (dropdownPart === "8") {
+            pushBrand(e);
+        }
+        else if (dropdownPart === "9") {
+            pushPack(e);
+        }
+        else if (dropdownPart === "10") {
+            pushFamily(e);
+        }
+        else if (dropdownPart === "11") {
+            pushLine(e);
         }
 
     };
@@ -54,6 +68,18 @@ function ItemList({ itemName, itemId, dropdownPart }) {
         }
         else if (dropdownPart === "7") {
             filterCity(e);
+        }
+        else if (dropdownPart === "8") {
+            filterBrand(e);
+        }
+        else if (dropdownPart === "9") {
+            filterPack(e);
+        }
+        else if (dropdownPart === "10") {
+            filterFamily(e);
+        }
+        else if (dropdownPart === "11") {
+            filterLine(e);
         }
 
     };

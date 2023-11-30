@@ -8,6 +8,7 @@ const Home=()=>
 {       
     const [item,setItem] = useState(false);
     const [bp,setBp] = useState(false);
+    const {setDate} = useUserStore();
     const setrole = useUserStore((state)=>state.setRoles);
     const Bp = useUserStore((state)=>state.setBp);    
     const Item = useUserStore((state)=>state.setItem);
@@ -24,7 +25,8 @@ const Home=()=>
         console.log(response);
         console.log(response.status);
         if (response.status == "Success") {
-          console.log(response.data.menu_details);  
+          
+          setDate(response.data.profile_details.sys_date);
           const details = response.data.menu_details;
           details.map(async(item)=>{
             console.log(item.menu_display_name);
