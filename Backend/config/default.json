@@ -1,0 +1,12 @@
+{
+    "mongodb": {
+        "connectionString": "Connection string"
+    },
+    "jwt": {
+        "secret" : "secret key",
+    },
+    "mail-credentials" : {
+        "userid" :"<smtp server userId>",
+        "password" : "<smtp server password>"
+    }
+}

@@ -1,0 +1,8 @@
+{
+  "mongodb": {
+      "connectionString": "connectionString"
+  },
+  "jwt": {
+      "secret" : "secret key"
+  }
+}
