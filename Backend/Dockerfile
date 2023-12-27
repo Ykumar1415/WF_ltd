@@ -1,12 +1,13 @@
 FROM node:13-alpine
 
-WORKDIR /usr/backend
+WORKDIR /app
 
-COPY . .
+COPY package.json .
 RUN rm -rf node_modules/ package-lock.json
 
 RUN npm install nodemon
 RUN npm install
+COPY . .
+EXPOSE 5000
 
-
-CMD ["sh", "-c", "npm run start"]
+CMD ["npm", "start"]
