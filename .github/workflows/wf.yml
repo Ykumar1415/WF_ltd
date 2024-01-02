@@ -36,11 +36,12 @@ jobs:
         working-directory: ./ins-config
       - name: Set output
         id: set-ip
-        run: |
-          echo "instance_public_ip=$(terraform output -raw instance_public_ip)" >> $GITHUB_ENV
+        run: terraform show -json ./ins-config/terraform.tfstate | jq -r '.values.outputs.instance_public_ip.value' >> $GITHUB_ENV
         working-directory: ./ins-config
-
-
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install jq
 
   build-and-push-images:
     runs-on: ubuntu-latest
