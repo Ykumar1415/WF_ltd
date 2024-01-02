@@ -36,10 +36,11 @@ jobs:
         working-directory: ./ins-config
       - name: Set output
         id: set-ip
-        run: terraform show -json ./ins-config/terraform.tfstate | jq -r '.values.outputs.instance_public_ip.value' >> $GITHUB_ENV
-        working-directory: ./ins-config
+        run: |-
+          echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)"
+        working-directory: ./terraform
       - name: Install jq
-        run: |
+        run: |-
           sudo apt-get update
           sudo apt-get install jq
 
@@ -50,7 +51,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set IP env variable
-        run: echo SERVER_PUBLIC_IP=${{ env.instance_public_ip }} >> $GITHUB_ENV
+        run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
       - name: Build and Push Docker Images
         run: docker-compose -f docker-compose.yaml build
         working-directory: .  # Assumes docker-compose.yaml is in the root of your repository
