@@ -37,8 +37,9 @@ jobs:
       - name: Set output
         id: set-ip
         run: |
-          echo "instance_public_ip=$(terraform output instance_public_ip)" >> $GITHUB_ENV
+          echo "instance_public_ip=$(terraform output -raw instance_public_ip)" >> $GITHUB_ENV
         working-directory: ./ins-config
+
 
 
   build-and-push-images:
