@@ -38,7 +38,7 @@ jobs:
         id: set-ip
         run: |-
           echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)"
-        working-directory: ./terraform
+        working-directory: ./ins-config
       - name: Install jq
         run: |-
           sudo apt-get update
