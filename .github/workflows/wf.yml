@@ -62,3 +62,4 @@ jobs:
         env:
           AWS_DEFAULT_REGION: ap-south-1
         run: docker-compose -f docker-compose.yaml up -d
+        working-directory: .
