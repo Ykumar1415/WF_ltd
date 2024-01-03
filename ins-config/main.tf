@@ -1,3 +1,4 @@
+
 terraform {
   required_providers {
     aws = {
@@ -6,19 +7,29 @@ terraform {
     }
   }
   backend "s3" {
-    key = "aws/ec2-deploy/terraform.tfstate"
+    key        = "aws/ec2-deploy/terraform.tfstate"
+    region     = "ap-south-1"
+    access_key = var.access_key
+    secret_key = var.secret_key
   }
 }
 
 provider "aws" {
-  region = var.region
+  region     = "ap-south-1"
+  access_key = var.access_key
+  secret_key = var.secret_key
 }
+
 resource "aws_instance" "servernode" {
   ami                    = "ami-0d63de463e6604d0a"
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.maingroup.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2-profile.name
+
+ tags = {
+    Name = "DeployVM"
+  }
   connection {
     type        = "ssh"
     host        = self.public_ip
@@ -26,14 +37,44 @@ resource "aws_instance" "servernode" {
     private_key = var.private_key
     timeout     = "4m"
   }
-  tags = {
-    "name" = "DeployVM"
-  }
+
+ 
 }
+
+resource "aws_iam_user" "deployer" {
+  name = "deployer"
+}
+
+resource "aws_iam_access_key" "deployer_access_key" {
+  user = aws_iam_user.deployer.name
+}
+
+resource "aws_iam_role" "ecr-login-role" {
+  name = "ECR-LOGIN-AUTO"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com",
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecr-login-policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.ecr-login-role.name
+}
+
 resource "aws_iam_instance_profile" "ec2-profile" {
   name = "ec2-profile"
-  role = "ECR-LOGIN-AUTO"
+  role = aws_iam_role.ecr-login-role.name
 }
+
 resource "aws_security_group" "maingroup" {
   egress = [
     {
@@ -96,7 +137,6 @@ resource "aws_security_group" "maingroup" {
     },
   ]
 }
-
 
 resource "aws_key_pair" "deployer" {
   key_name   = var.key_name

@@ -12,7 +12,8 @@ env:
   PRIVATE_SSH_KEY: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
   PUBLIC_SSH_KEY: ${{ secrets.AWS_SSH_KEY_PUBLIC }}
   AWS_REGION: ap-south-1
-
+  PUBLIC_KEY: ${{ secrets.AWS_PUBLIC_KEY }}
+  PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
@@ -29,7 +30,7 @@ jobs:
         run: terraform init -backend-config="bucket=$TF_STATE_BUCKET_NAME" -backend-config="region=ap-south-1"
         working-directory: ./ins-config
       - name: Terraform Plan
-        run: terraform plan -destroy -var="region=ap-south-1" -var="public_key=$PUBLIC_SSH_KEY" -var="private_key=$PRIVATE_SSH_KEY" -var="key_name=deployer-key" -out=PLAN
+        run: terraform plan -destroy -var="region=ap-south-1" -var="public_key=$PUBLIC_SSH_KEY" -var="access_key=$PUBLIC_KEY" -var="secret_key=$PRIVATE_KEY" -var="private_key=$PRIVATE_SSH_KEY" -var="key_name=deployer-key" -out=PLAN
         working-directory: ./ins-config
       - name: Terraform Apply
         run: terraform apply PLAN
@@ -54,7 +55,7 @@ jobs:
         run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
       - name: Build and Push Docker Images
         run: docker-compose -f docker-compose.yaml build
-        working-directory: .  # Assumes docker-compose.yaml is in the root of your repository
+        working-directory: . 
       - name: Login to AWS ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
