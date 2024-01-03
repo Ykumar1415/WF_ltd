@@ -69,3 +69,7 @@ jobs:
           AWS_DEFAULT_REGION: ap-south-1
         run: docker-compose -f docker-compose.yaml up -d
         working-directory: .
+      - name: Print working directory contents
+        run: ls -R
+        working-directory: .
+
