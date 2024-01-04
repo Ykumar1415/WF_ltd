@@ -4,11 +4,10 @@ variable "region" {
 variable "public_key" {
 
 }
-variable "access_key" {
+variable "access_key" { 
 
 }
-variable "secret_key" {
-
+variable "secret_key" { 
 }
 variable "private_key" {
 
