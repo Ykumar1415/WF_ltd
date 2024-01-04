@@ -56,14 +56,14 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: WF_ltd
           IMAGE_TAG: ${{ github.sha }}
-        run: |-
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-        working-directory: ./
+        run: |
+          docker build -t $REGISTRY/$(echo $REPOSITORY | tr '[:upper:]' '[:lower:]'):$IMAGE_TAG .
+          docker push $REGISTRY/$(echo $REPOSITORY | tr '[:upper:]' '[:lower:]'):$IMAGE_TAG
+        working-directory: .
       - name: Deploy docker image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: WE_ltd
+          REPOSITORY: WF_ltd
           IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: ap-south-1
         uses: appleboy/ssh-action@master
