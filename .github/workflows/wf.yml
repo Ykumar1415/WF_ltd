@@ -57,15 +57,18 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: wf_ltd
           IMAGE_TAG: ${{ github.sha }}
+          PRIVATE_SSH_KEY: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i $PRIVATE_SSH_KEY ubuntu@${SERVER_PUBLIC_IP} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i "$PRIVATE_SSH_KEY" ubuntu@${SERVER_PUBLIC_IP} << 'EOF'
             sudo apt update
             sudo apt install docker.io -y
             sudo apt install docker-compose -y
             sudo $(aws ecr get-login --no-include-email --region ap-south-1)
-            docker-compose -f pull
-            docker-compose -f up -d
+            docker-compose pull
+            docker-compose up -d
           EOF
+        working-directory: .
+
 
   # deploy-app:
   #   runs-on: ubuntu-latest
