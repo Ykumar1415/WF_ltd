@@ -56,6 +56,10 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: WF_ltd
           IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/$(echo $REPOSITORY | tr '[:upper:]' '[:lower:]'):$IMAGE_TAG .
+          docker push $REGISTRY/$(echo $REPOSITORY | tr '[:upper:]' '[:lower:]'):$IMAGE_TAG
+        working-directory: .
       - name: Deploy docker image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
