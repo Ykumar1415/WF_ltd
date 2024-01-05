@@ -62,14 +62,7 @@ jobs:
           host: ${{ env.SERVER_PUBLIC_IP }}
           username: ubuntu
           key: ${{ env.PRIVATE_SSH_KEY }}
-        envs:
-          PRIVATE_SSH_KEY: ${{ env.PRIVATE_SSH_KEY }}
-          REGISTRY: ${{ env.REGISTRY }}
-          REPOSITORY: ${{ env.REPOSITORY }}
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
+          envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
           script: |-
             ssh -o StrictHostKeyChecking=no -i $PRIVATE_SSH_KEY ubuntu@${SERVER_PUBLIC_IP} << 'EOF'
               sudo apt update
