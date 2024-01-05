@@ -62,7 +62,7 @@ jobs:
           host: ${{ env.SERVER_PUBLIC_IP }}
           username: ubuntu
           key: ${{ env.PRIVATE_SSH_KEY }}
-        env:
+        envs:
           PRIVATE_SSH_KEY: ${{ env.PRIVATE_SSH_KEY }}
           REGISTRY: ${{ env.REGISTRY }}
           REPOSITORY: ${{ env.REPOSITORY }}
