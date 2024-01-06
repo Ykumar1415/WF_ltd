@@ -71,18 +71,25 @@ jobs:
           echo "$PRIVATE_KEY" > private_key
           chmod 600 private_key
 
+          # Extract the hostname from the IP address
+          HOSTNAME=$(ssh-keyscan -H $SERVER_PUBLIC_IP 2>/dev/null | cut -f 2 -d ' ')
+          if [ -z "$HOSTNAME" ]; then
+            echo "Failed to extract hostname. Aborting..."
+            exit 1
+          fi
+
           # SSH into the server and deploy the Docker containers
-          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_PUBLIC_IP} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@$HOSTNAME << 'EOF'
             sudo apt update
             sudo apt install docker.io -y
             sudo apt install docker-compose -y
             sudo systemctl start docker
             sudo systemctl enable docker
             
-            # Pull the latest images and run the Docker Compose app
             sudo docker-compose pull
             sudo docker-compose up -d
           EOF
+
 
   # build-and-push-images:
   #   runs-on: ubuntu-latest
