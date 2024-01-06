@@ -67,15 +67,21 @@ jobs:
           # Push Docker images to ECR
           docker-compose push
 
+          # Create private key file and set permissions
+          echo "$PRIVATE_KEY" > private_key
+          chmod 600 private_key
+
           # SSH into the server and deploy the Docker containers
-          ssh -o StrictHostKeyChecking=no -i $PRIVATE_SSH_KEY ubuntu@${SERVER_PUBLIC_IP} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_PUBLIC_IP} << 'EOF'
             sudo apt update
             sudo apt install docker.io -y
             sudo apt install docker-compose -y
+            sudo systemctl start docker
+            sudo systemctl enable docker
             
             # Pull the latest images and run the Docker Compose app
-            sudo docker-compose -f  pull
-            sudo docker-compose -f  up -d
+            sudo docker-compose pull
+            sudo docker-compose up -d
           EOF
 
   # build-and-push-images:
