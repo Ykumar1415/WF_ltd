@@ -96,6 +96,8 @@ jobs:
             
             # Navigate to the root directory of your GitHub repository
             cd $GITHUB_WORKSPACE
+            cd /home/ubuntu/wf_ltd
+            cd /home/ubuntu/WF_ltd
 
             sudo apt install docker-compose -y
             sudo systemctl start docker
