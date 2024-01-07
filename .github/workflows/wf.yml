@@ -4,13 +4,13 @@ on:
   push:
     branches:
       - main
-  paths:
-    - 'docker-compose.yaml'
-    - 'ins-config/*'
-    - '.github/workflows/wf.yml'
-    - 'Backend/*'
-    - 'Userclient/*'
-    - 'Adminclient/*'
+    paths:
+      - 'docker-compose.yaml'
+      - 'ins-config/*'
+      - '.github/workflows/wf.yml'
+      - 'Backend/*'
+      - 'Userclient/*'
+      - 'Adminclient/*'
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -22,33 +22,39 @@ env:
   PUBLIC_KEY: ${{ secrets.AWS_PUBLIC_KEY }}
   PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
   IP_VAR: ${{secrets.AWS_PUBLIC_IP}}
+
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
     outputs:
-      SERVER_PUBLIC_IP: ${{ steps.set-ip.outputs.instance_public_ip}}
+      SERVER_PUBLIC_IP: ${{ steps.set-ip.outputs.instance_public_ip }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.7.2
           terraform_wrapper: false
+
       - name: Terraform Init
         run: terraform init -backend-config="bucket=$TF_STATE_BUCKET_NAME" -backend-config="region=ap-south-1"
         working-directory: ./ins-config
+
       - name: Terraform Plan
         run: terraform plan -var="region=ap-south-1" -var="public_key=$PUBLIC_SSH_KEY" -var="access_key=$PUBLIC_KEY" -var="secret_key=$PRIVATE_KEY" -var="private_key=$PRIVATE_SSH_KEY" -var="key_name=deployer-key" -out=PLAN
         working-directory: ./ins-config
+
       - name: Terraform Apply
         run: terraform apply PLAN
         working-directory: ./ins-config
+
       - name: Set output
         id: set-ip
-        run: |-
-          echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)"
+        run: echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)"
         working-directory: ./ins-config
+
   deploy-app:
     runs-on: ubuntu-latest
     needs: deploy-infra
@@ -58,6 +64,7 @@ jobs:
 
       - name: Set IP env variable
         run: echo "SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}" >> $GITHUB_ENV
+
       - name: Debugging Info
         run: |
           echo "Current directory: $(pwd)"
@@ -65,7 +72,8 @@ jobs:
           cat $GITHUB_ENV
 
       - name: Build image
-        run: docker compose -f docker-compose.yaml build
+        run: docker-compose -f docker-compose.yaml build
+
       - name: Install AWS CLI
         run: |
           sudo apt update
@@ -84,7 +92,8 @@ jobs:
           ssh-add ~/.ssh/id_rsa
 
       - name: Push image to DO Container Registry
-        run: docker compose -f docker-compose.yaml push
+        run: docker-compose -f docker-compose.yaml push
+
       - name: Deploy Docker images
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -94,8 +103,7 @@ jobs:
           SERVER_PUBLIC_IP: ${{ secrets.AWS_PUBLIC_IP }}
         uses: appleboy/ssh-action@master
         with:
-        context: .
-          host: ${{secrets.AWS_PUBLIC_IP}}
+          host: ${{ secrets.AWS_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
           envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
@@ -106,6 +114,7 @@ jobs:
             sudo $(aws ecr get-login --no-include-email --region ap-south-1)
             
             # Navigate to the root directory of your GitHub repository
+            cd $GITHUB_WORKSPACE
 
             sudo apt install docker-compose -y
             sudo systemctl start docker
@@ -114,56 +123,3 @@ jobs:
             ls -l
             sudo docker-compose pull
             sudo docker-compose up -d
-
-
-        # run: |
-        #   # Build Docker images
-        #   docker-compose build
-
-        #   # Push Docker images to ECR
-        #   docker-compose push
-
-        #   # Create private key file and set permissions
-        #   echo '${PRIVATE_KEY}' > private_key
-        #   chmod 600 private_key
-
-        #   # SSH into the server and deploy the Docker containers
-        #   ssh -o StrictHostKeyChecking=no -i ${PRIVATE_KEY} ubuntu@${IP_VAR} << 'EOF'
-        #     sudo apt update
-        #     sudo apt install docker.io -y
-        #     sudo apt install docker-compose -y
-        #     sudo systemctl start docker
-        #     sudo systemctl enable docker
-
-        #     # Navigate to the directory containing your docker-compose.yaml file
-        #     cd /path/to/your/docker-compose/directory
-
-        #     # Pull the latest images and run the Docker Compose app
-        #     sudo docker-compose pull
-        #     sudo docker-compose up -d
-        #   EOF
-
-  # build-and-push-images:
-  #   runs-on: ubuntu-latest
-  #   needs: deploy-infra
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #     - name: Set IP env variable
-  #       run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
-  #     - name: Build and Push Docker Images
-  #       run: docker-compose -f docker-compose.yaml build
-  #       working-directory: . 
-  #     - name: Login to AWS ECR
-  #       id: login-ecr
-  #       uses: aws-actions/amazon-ecr-login@v1
-
-  # deploy-app:
-  #   runs-on: ubuntu-latest
-  #   needs: build-and-push-images
-  #   steps:
-  #     - name: Deploy Docker Compose App
-  #       env:
-  #         AWS_DEFAULT_REGION: ap-south-1
-  #       run: docker-compose -f docker-compose.yaml up -d
-  #       working-directory: .
