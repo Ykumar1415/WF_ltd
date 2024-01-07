@@ -37,8 +37,7 @@ jobs:
         working-directory: ./ins-config
       - name: Set output
         id: set-ip
-        run: |-
-          echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)"
+        run: echo "instance_public_ip=$(terraform output -raw instance_public_ip)" >> $GITHUB_OUTPUT
         working-directory: ./ins-config
   deploy-app:
     runs-on: ubuntu-latest
@@ -47,16 +46,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set IP env variable
-        run: echo "SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}" >> $GITHUB_ENV
-
       - name: Login to AWS ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Deploy Docker images
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REGISTRY: ${{ needs.deploy-infra.outputs.registry }}
           REPOSITORY: wf_ltd
           IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: ap-south-1
@@ -72,7 +68,7 @@ jobs:
           chmod 600 private_key
 
           # SSH into the server and deploy the Docker containers
-          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_PUBLIC_IP} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${{ needs.deploy-infra.outputs.instance_public_ip }} << 'EOF'
             sudo apt update
             sudo apt install docker.io -y
             sudo apt install docker-compose -y
