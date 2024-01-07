@@ -60,7 +60,7 @@ jobs:
         run: source terraform-output.env
 
       - name: Debug Server Public IP
-        run: echo "Server Public IP: $SERVER_PUBLIC_IP"
+        run: echo "Server Public IP, $SERVER_PUBLIC_IP"
 
       - name: Login to AWS ECR
         id: login-ecr
