@@ -78,7 +78,7 @@ jobs:
       - name: Build and Push Docker images
         env:
           AWS_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          AWS_REPOSITORY: WF_ltd
+          AWS_REPOSITORY: wf_ltd
           AWS_IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: ap-south-1
         run: |
