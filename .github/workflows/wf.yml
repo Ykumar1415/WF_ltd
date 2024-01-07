@@ -70,30 +70,40 @@ jobs:
           echo "Current directory: $(pwd)"
           env
           cat $GITHUB_ENV
-        
       - name: Log in to AWS ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Build and Push Docker images to AWS ECR
-        env:
-          AWS_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          AWS_REPOSITORY: WF_ltd
-          AWS_IMAGE_TAG: ${{ github.sha }}
-          AWS_DEFAULT_REGION: ap-south-1
+        with:
+          region: ap-south-1
+      - name: Build and Push Docker images
         run: |
-          docker-compose -f docker-compose.yml build
+          docker-compose -f docker-compose.yaml build
+          docker-compose -f docker-compose.yaml push
           docker tag wf_ltd:${{ github.sha }} $AWS_REGISTRY/$AWS_REPOSITORY:$AWS_IMAGE_TAG
           docker push $AWS_REGISTRY/$AWS_REPOSITORY:$AWS_IMAGE_TAG
-
-      - name: Deploy Stack to AWS EC2
+      - name: Deploy Docker images
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry}}
+          REPOSITORY: WF_ltd
+          IMAGE_TAG: ${{ github.sha }}
+          AWS_DEFAULT_REGION: ap-south-1
+          SERVER_PUBLIC_IP: ${{ secrets.AWS_PUBLIC_IP }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
-          envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,AWS_REGISTRY,AWS_REPOSITORY,AWS_IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
+          envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
+          path: |
+            /home/runner/work/WF_ltd/WF_ltd
           script: |
-            docker-compose -f docker-compose.yml pull
-            docker-compose -f docker-compose.yml up -d
+            sudo apt update
+            sudo apt install git -y
+            git checkout master
+            git pull origin maste
+            sudo apt install docker.io -y
+            sudo apt install awscli -y
+            sudo $(aws ecr get-login --no-include-email --region ap-south-1)
+
+            docker-compose -f docker-compose.yaml pull
+            docker-compose -f docker-compose.yaml up -d
