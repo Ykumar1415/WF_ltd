@@ -71,32 +71,14 @@ jobs:
           env
           cat $GITHUB_ENV
 
-      - name: Build image
-        run: docker-compose -f docker-compose.yaml build
-
-      - name: Install AWS CLI
+      - name: Build and Push Docker images
         run: |
-          sudo apt update
-          sudo apt install -y awscli
-
-      - name: Login to AWS ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "$PRIVATE_SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa
-
-      - name: Push image to DO Container Registry
-        run: docker-compose -f docker-compose.yaml push
+          docker-compose -f docker-compose.yaml build
+          docker-compose -f docker-compose.yaml push
 
       - name: Deploy Docker images
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry}}
           REPOSITORY: WF_ltd
           IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: ap-south-1
@@ -107,20 +89,11 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
           envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
-          script: |-
+          script: |
             sudo apt update
             sudo apt install docker.io -y
             sudo apt install awscli -y
             sudo $(aws ecr get-login --no-include-email --region ap-south-1)
-            
-            # Navigate to the root directory of your GitHub repository
-            cd $GITHUB_WORKSPACE
 
-            sudo apt install docker-compose -y
-            sudo systemctl start docker
-            sudo systemctl enable docker
-
-            ls -l
-            docker-compose -f docker-compose.yaml push
-            sudo docker-compose pull
-            sudo docker-compose up -d
+            docker-compose -f docker-compose.yaml pull
+            docker-compose -f docker-compose.yaml up -d
