@@ -19,7 +19,7 @@ provider "aws" {
 }
 
 resource "aws_instance" "servernode" {
-  ami                    = "ami-0d63de463e6604d0a"
+  ami                    = "ami-0f5ee92e2d63afc18"
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.maingroup.id]
