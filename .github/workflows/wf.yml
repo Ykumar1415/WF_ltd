@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+  paths:
+    - 'docker-compose.yaml'
+    - 'ins-config/*'
+    - '.github/workflows/wf.yml'
+    - 'Backend/*'
+    - 'Userclient/*'
+    - 'Adminclient/*'
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -47,20 +54,18 @@ jobs:
     needs: deploy-infra
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Set IP env variable
         run: echo "SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}" >> $GITHUB_ENV
-
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
       - name: Debugging Info
         run: |
           echo "Current directory: $(pwd)"
           env
           cat $GITHUB_ENV
 
+      - name: Build image
+        run: docker compose -f docker-compose.yaml build
       - name: Install AWS CLI
         run: |
           sudo apt update
@@ -77,9 +82,9 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
-        working-directory: .
-      - name: Checkout
-        uses: actions/checkout@v3
+
+      - name: Push image to DO Container Registry
+        run: docker compose -f docker-compose.yaml push
       - name: Deploy Docker images
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -89,7 +94,7 @@ jobs:
           SERVER_PUBLIC_IP: ${{ secrets.AWS_PUBLIC_IP }}
         uses: appleboy/ssh-action@master
         with:
-          context: .
+        context: .
           host: ${{secrets.AWS_PUBLIC_IP}}
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
