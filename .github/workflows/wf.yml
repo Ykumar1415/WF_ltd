@@ -93,13 +93,18 @@ jobs:
             sudo apt install docker.io -y
             sudo apt install awscli -y
             sudo $(aws ecr get-login --no-include-email --region ap-south-1)
+            
+            # Navigate to the root directory of your GitHub repository
+            cd $GITHUB_WORKSPACE
+
             sudo apt install docker-compose -y
             sudo systemctl start docker
             sudo systemctl enable docker
+
             ls -l
-            # cd /home/ubuntu/WF_ltd
             sudo docker-compose pull
             sudo docker-compose up -d
+
 
         # run: |
         #   # Build Docker images
