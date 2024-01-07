@@ -14,7 +14,7 @@ env:
   AWS_REGION: ap-south-1
   PUBLIC_KEY: ${{ secrets.AWS_PUBLIC_KEY }}
   PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
-  IP_VAR: ${{secret.AWS_PUBLIC_IP}}
+  IP_VAR: ${{secrets.AWS_PUBLIC_IP}}
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
