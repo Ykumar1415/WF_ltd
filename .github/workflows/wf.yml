@@ -71,8 +71,8 @@ jobs:
           env
           cat $GITHUB_ENV
     steps:
-    - name: Checkout files
-      uses: actions/checkout@v
+      - name: Checkout files
+        uses: actions/checkout@v
 
       - name: Deploy Docker images
         env:
