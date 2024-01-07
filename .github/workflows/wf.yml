@@ -27,6 +27,7 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.7.2
+          terraform_wrapper: false
       - name: Terraform Init
         run: terraform init -backend-config="bucket=$TF_STATE_BUCKET_NAME" -backend-config="region=ap-south-1"
         working-directory: ./ins-config
@@ -54,39 +55,66 @@ jobs:
       - name: Login to AWS ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
+      # - name: Build, push docker image
+      #   env:
+      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     REPOSITORY: wf_ltd
+      #     IMAGE_TAG: ${{ github.sha }}
+      #   run: |-
+      #     docker buiIMAGE_TAGld -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+      #     docker push $REGISTRY/$REPOSITORY:$
+      #  working-directory: .
       - name: Deploy Docker images
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: wf_ltd
           IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: ap-south-1
-        run: |
-          # Build Docker images
-          docker-compose build
-
-          # Push Docker images to ECR
-          docker-compose push
-
-          # Create private key file and set permissions
-          echo '${PRIVATE_KEY}' > private_key
-          chmod 600 private_key
-
-          # SSH into the server and deploy the Docker containers
-          ssh -o StrictHostKeyChecking=no -i ${PRIVATE_KEY} ubuntu@${IP_VAR} << 'EOF'
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.AWS_PUBLIC_IP}}
+          username: ec2-user
+          key: ${{secrets.AWS_SSH_KEY_PRIVATE}}
+          envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
+          script: |-
             sudo apt update
             sudo apt install docker.io -y
+            sudo apt install awscli -y
+            sudo $(aws ecr get-login --no-include-email --region ap-south-1);
             sudo apt install docker-compose -y
             sudo systemctl start docker
             sudo systemctl enable docker
-
-            # Navigate to the directory containing your docker-compose.yaml file
-            cd /path/to/your/docker-compose/directory
-
-            # Pull the latest images and run the Docker Compose app
+            ls -l
+            # cd /home/ubuntu/WF_ltd
             sudo docker-compose pull
             sudo docker-compose up -d
-          EOF
+          working-directory: .
+        # run: |
+        #   # Build Docker images
+        #   docker-compose build
+
+        #   # Push Docker images to ECR
+        #   docker-compose push
+
+        #   # Create private key file and set permissions
+        #   echo '${PRIVATE_KEY}' > private_key
+        #   chmod 600 private_key
+
+        #   # SSH into the server and deploy the Docker containers
+        #   ssh -o StrictHostKeyChecking=no -i ${PRIVATE_KEY} ubuntu@${IP_VAR} << 'EOF'
+        #     sudo apt update
+        #     sudo apt install docker.io -y
+        #     sudo apt install docker-compose -y
+        #     sudo systemctl start docker
+        #     sudo systemctl enable docker
+
+        #     # Navigate to the directory containing your docker-compose.yaml file
+        #     cd /path/to/your/docker-compose/directory
+
+        #     # Pull the latest images and run the Docker Compose app
+        #     sudo docker-compose pull
+        #     sudo docker-compose up -d
+        #   EOF
 
   # build-and-push-images:
   #   runs-on: ubuntu-latest
