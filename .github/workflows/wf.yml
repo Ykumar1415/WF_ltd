@@ -91,7 +91,7 @@ jobs:
           script: |
             sudo apt update
             sudo apt install git -y
-            git clone ${{ secrets.GIT_URL }}
+            git clone https://${{ secrets.GITHUB_ACTOR }}:${{ secrets.GIT_TOKEN }}@github.com/Ykumar1415/WF_ltd.git
             cd WF_ltd
             sudo apt install docker.io -y
             sudo apt install awscli -y
