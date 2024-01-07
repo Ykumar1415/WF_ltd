@@ -19,7 +19,7 @@ provider "aws" {
 }
 
 resource "aws_instance" "servernode" {
-  ami                    = "ami-0f5ee92e2d63afc18"
+  ami                    = "ami-03f4878755434977f"
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.maingroup.id]
@@ -27,6 +27,12 @@ resource "aws_instance" "servernode" {
 
  tags = {
     Name = "DeployVM"
+  }
+    root_block_device {
+    volume_size = 15
+    volume_type = "gp3"
+    encrypted   = true
+    kms_key_id  = data.aws_kms_key.customer_master_key.arn
   }
   connection {
     type        = "ssh"

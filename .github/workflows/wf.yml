@@ -90,13 +90,18 @@ jobs:
           envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
           script: |
             sudo apt update -y
-            sudo apt install git -y
             sudo apt install docker.io -y
-            sudo apt install awscli -y
             sudo usermod -aG docker $USER
             sudo newgrp docker
             sudo apt install docker-compose -y
             git clone https://${{ secrets.GITHUB_ACTOR }}:${{ secrets.GIT_TOKEN }}@github.com/Ykumar1415/WF_ltd.git
             cd WF_ltd
+            sudo fallocate -l 4G /swapfile
+            sudo chmod 600 /swapfile
+            sudo mkswap /swapfile
+            sudo swapon /swapfile
+            sudo swapon --show
+            free -h
+            echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
             sudo docker-compose up -d
 
