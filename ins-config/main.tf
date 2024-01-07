@@ -32,7 +32,6 @@ resource "aws_instance" "servernode" {
     volume_size = 15
     volume_type = "gp3"
     encrypted   = true
-    kms_key_id  = data.aws_kms_key.customer_master_key.arn
   }
   connection {
     type        = "ssh"
