@@ -74,7 +74,8 @@ jobs:
       - name: Log in to AWS ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Build and Push Docker images to AWS ECR
         env:
           AWS_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
