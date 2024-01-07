@@ -70,21 +70,29 @@ jobs:
           echo "Current directory: $(pwd)"
           env
           cat $GITHUB_ENV
-      - name: Deploy Docker images
+        
+      - name: Log in to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and Push Docker images to AWS ECR
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry}}
-          REPOSITORY: WF_ltd
-          IMAGE_TAG: ${{ github.sha }}
+          AWS_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          AWS_REPOSITORY: WF_ltd
+          AWS_IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: ap-south-1
-          SERVER_PUBLIC_IP: ${{ secrets.AWS_PUBLIC_IP }}
+        run: |
+          docker-compose -f docker-compose.yml build
+          docker tag wf_ltd:${{ github.sha }} $AWS_REGISTRY/$AWS_REPOSITORY:$AWS_IMAGE_TAG
+          docker push $AWS_REGISTRY/$AWS_REPOSITORY:$AWS_IMAGE_TAG
+
+      - name: Deploy Stack to AWS EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
-          envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
-          path: |
-            /home/runner/work/WF_ltd/WF_ltd
-          port: 22
+          envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,AWS_REGISTRY,AWS_REPOSITORY,AWS_IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
           script: |
-            docker-compose up -d --build 
+            docker-compose -f docker-compose.yml pull
+            docker-compose -f docker-compose.yml up -d
