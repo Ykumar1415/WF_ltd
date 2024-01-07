@@ -70,11 +70,9 @@ jobs:
           echo "Current directory: $(pwd)"
           env
           cat $GITHUB_ENV
-
-      - name: Build and Push Docker images
-        run: |
-          docker-compose -f docker-compose.yaml build
-          docker-compose -f docker-compose.yaml push
+    steps:
+    - name: Checkout files
+      uses: actions/checkout@v
 
       - name: Deploy Docker images
         env:
@@ -91,11 +89,6 @@ jobs:
           envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
           path: |
             /home/runner/work/WF_ltd/WF_ltd
-          script: |
-            sudo apt update
-            sudo apt install docker.io -y
-            sudo apt install awscli -y
-            sudo $(aws ecr get-login --no-include-email --region ap-south-1)
-
-            docker-compose -f docker-compose.yaml pull
-            docker-compose -f docker-compose.yaml up -d
+          port: 22
+        script: |
+          docker-compose up -d --build 
