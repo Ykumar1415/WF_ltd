@@ -14,7 +14,7 @@ env:
   AWS_REGION: ap-south-1
   PUBLIC_KEY: ${{ secrets.AWS_PUBLIC_KEY }}
   PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
-  ipvar:${{secret.AWS_PUBLIC_IP}}
+  IP_VAR: ${{secret.AWS_PUBLIC_IP}}
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
@@ -73,7 +73,7 @@ jobs:
           chmod 600 private_key
 
           # SSH into the server and deploy the Docker containers
-          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${ipvar} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${IP_VAR} << 'EOF'
             sudo apt update
             sudo apt install docker.io -y
             sudo apt install docker-compose -y
