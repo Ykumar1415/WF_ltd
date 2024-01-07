@@ -43,7 +43,9 @@ jobs:
 
       - name: Set output
         id: set-ip
-        run: echo "INSTANCE_PUBLIC_IP=$(terraform output -raw instance_public_ip)" >> $GITHUB_ENV
+        run: |
+          INSTANCE_PUBLIC_IP=$(terraform output -raw instance_public_ip)
+          echo "instance_public_ip=${INSTANCE_PUBLIC_IP}" >> $GITHUB_ENV
         working-directory: ./ins-config
 
   deploy-app:
