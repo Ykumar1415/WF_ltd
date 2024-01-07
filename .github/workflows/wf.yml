@@ -81,10 +81,10 @@ jobs:
           REPOSITORY: WF_ltd
           IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: ap-south-1
-          SERVER_PUBLIC_IP: ${{steps.deploy-infra.outputs.SERVER_PUBLIC_IP}} 
+          SERVER_PUBLIC_IP: ${{secret.AWS_PUBLIC_IP}} 
         uses: appleboy/ssh-action@master
         with:
-          host: ${{steps.deploy-infra.outputs.SERVER_PUBLIC_IP}} 
+          host: ${{secret.AWS_PUBLIC_IP}} 
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
           envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
@@ -93,8 +93,8 @@ jobs:
           script: |
             sudo apt update
             sudo apt install git -y
-            git checkout master
-            git pull origin maste
+            git clone {{ secrets.GIT_URL }}
+            cd WF_ltd
             sudo apt install docker.io -y
             sudo apt install awscli -y
             sudo $(aws ecr get-login --no-include-email --region ap-south-1)
