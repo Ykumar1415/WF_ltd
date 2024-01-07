@@ -88,12 +88,10 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
           envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
-          path: |
-            /home/runner/work/WF_ltd/WF_ltd
           script: |
             sudo apt update
             sudo apt install git -y
-            git clone {{ secrets.GIT_URL }}
+            git clone ${{ secrets.GIT_URL }}
             cd WF_ltd
             sudo apt install docker.io -y
             sudo apt install awscli -y
