@@ -75,35 +75,36 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
         working-directory: .
-      - name: Deploy Docker images
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: wf_ltd
-          IMAGE_TAG: ${{ github.sha }}
-          AWS_DEFAULT_REGION: ap-south-1
-          SERVER_PUBLIC_IP: ${{ secrets.AWS_PUBLIC_IP }}
-        uses: appleboy/ssh-action@master
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v3
         with:
           context: .
-          host: ${{secrets.AWS_PUBLIC_IP}}
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/wf_ltd:${{ github.sha }}
+          build-args: AWS_DEFAULT_REGION=ap-south-1
+
+      - name: Deploy Docker images
+        env:
+          SERVER_PUBLIC_IP: ${{ secrets.AWS_PUBLIC_IP }}
+          AWS_SSH_KEY_PRIVATE: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
-          envs: SERVER_PUBLIC_IP,PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
-          script: |-
+          envs: SERVER_PUBLIC_IP, AWS_SSH_KEY_PRIVATE
+          script: |
             sudo apt update
             sudo apt install docker.io -y
             sudo apt install awscli -y
-            sudo $(aws ecr get-login --no-include-email --region ap-south-1)
-            
-            # Navigate to the root directory of your GitHub repository
-
             sudo apt install docker-compose -y
             sudo systemctl start docker
             sudo systemctl enable docker
-
             ls -l
             sudo docker-compose pull
             sudo docker-compose up -d
+
 
 
         # run: |
