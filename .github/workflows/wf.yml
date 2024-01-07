@@ -76,6 +76,11 @@ jobs:
         with:
           region: ap-south-1
       - name: Build and Push Docker images
+        env:
+          AWS_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          AWS_REPOSITORY: WF_ltd
+          AWS_IMAGE_TAG: ${{ github.sha }}
+          AWS_DEFAULT_REGION: ap-south-1
         run: |
           docker-compose -f docker-compose.yaml build
           docker-compose -f docker-compose.yaml push
