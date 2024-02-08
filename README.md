@@ -36,3 +36,12 @@ The Examination System is a web application designed for conducting and managing
 AdminClient: http://localhost:3300
 UserClient: http://localhost:3200
 Backend API: http://localhost:5000
+
+
+
+Unit Tests
+Backend unit tests are available in the tests folder.
+
+cd backend
+npm install
+npm test
