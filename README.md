@@ -13,7 +13,8 @@ The Examination System is a web application designed for conducting and managing
 ## Technologies Used
 
 - **Docker:** Containerization for seamless deployment.
-- **Terraform:** Infrastructure as Code (IaC) for managing deployment.
+- **Terraform:** Infrastructure as Code (IaC) for managing deployment .
+- **CI / CD**
 - **GitHub:** Version control and collaboration platform.
 
 ## Project Structure
